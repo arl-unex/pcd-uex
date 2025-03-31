@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>gRPC con Java – Guía para Eclipse + Maven</title>
+
+  <!-- Fuentes e Iconos -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Fira+Code&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2DhWIJgANq7UJGoiyDMdWYRXoaF5+0dcQn5ALbCHpwNTVXkGfXbQzCP2NQ2EJq0wg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- PrismJS para Resaltado de Código -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.css" />
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-xml-doc.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-protobuf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.css" />
+
+  <!-- Estilos Personalizados -->
+  <style>
+    /* Reset Básico */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: #f0f2f5;
+      color: #333;
+      line-height: 1.6;
+      padding: 1rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1, h2, h3, h4 { margin-bottom: 1rem; font-weight: 600; }
+    h1 { font-size: 2rem; border-bottom: 2px solid #ccc; padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+    h2 { font-size: 1.75rem; margin-top: 2rem; }
+    h3 { font-size: 1.5rem; margin-top: 1.5rem; }
+    h4 { font-size: 1.25rem; margin-top: 1rem; }
+    p { margin-bottom: 1rem; }
+    /* Listas */
+    ul { list-style: disc; margin: 0.5rem 0 1rem 1.5rem; }
+    ol { list-style: decimal; margin: 0.5rem 0 1rem 1.5rem; }
+    li { margin-bottom: 0.5rem; }
+    a { color: #1a73e8; text-decoration: none; transition: color 0.3s ease; }
+    a:hover { color: #0c53b7; text-decoration: underline; }
+    /* Índice */
+    .toc {
+      background: #eef6fc;
+      padding: 1.5rem;
+      border-left: 6px solid #1a73e8;
+      margin-bottom: 2rem;
+      border-radius: 4px;
+    }
+    .toc h2 { margin-top: 0; font-size: 1.5rem; }
+    .toc ul { padding-left: 1rem; }
+    .toc ul li { margin: 0.5rem 0; }
+    /* Resúmenes y Ejercicios (integrados en el flujo) */
+    .resumen, .ejercicio {
+      border-radius: 4px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    .resumen { background: #e8f5e9; border-left: 5px solid #2e7d32; }
+    .ejercicio { background: #fff3e0; border-left: 5px solid #ff9800; }
+    /* Bloques de Código y Botón Copiar */
+    .code-container { position: relative; margin: 1.5rem 0; }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background-color: #1a73e8;
+      border: 1px solid #0c53b7;
+      color: #fff;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      border-radius: 4px;
+      transition: background 0.3s ease;
+      z-index: 10;
+    }
+    .copy-btn:hover { background-color: #0c53b7; }
+    pre[class*="language-"] {
+      margin: 0;
+      padding: 1.5rem;
+      border-radius: 4px;
+      background: #f5f5f5;
+      overflow: auto;
+      font-size: 0.9rem;
+    }
+    pre.line-numbers { padding-left: 3.8em; }
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container { padding: 1rem; }
+      h1 { font-size: 1.75rem; }
+      .toc { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>gRPC con Java – Guía para Eclipse + Maven</h1>
+  <p>
+    Esta guía te llevará paso a paso a construir un proyecto distribuido utilizando gRPC y Protocol Buffers en Eclipse, y a desplegarlo en redes ZeroTier. Cada módulo explica de forma didáctica qué se debe hacer, por qué se hace y cómo se integra cada parte en el proyecto final.
+  </p>
+
+  <nav class="toc">
+    <h2>Índice</h2>
+    <ul>
+      <li><a href="#intro">1. Introducción y Conceptos Básicos</a></li>
+      <li><a href="#estructura">2. Configuración Inicial en Eclipse</a></li>
+      <li><a href="#v1">3. Comunicación Unary (Básico)</a></li>
+      <li><a href="#v2">4. Comunicación Client Streaming</a></li>
+      <li><a href="#v3">5. Comunicación Server Streaming</a></li>
+      <li><a href="#v4">6. Comunicación Bidirectional Streaming</a></li>
+      <li><a href="#zerotier">7. Despliegue con ZeroTier</a></li>
+    </ul>
+  </nav>
+
+  <!-- 1. Introducción y Conceptos Básicos -->
+  <section id="intro">
+    <h2>1. Introducción y Conceptos Básicos</h2>
+    <p>
+      En esta sección se sientan las bases para comprender la programación distribuida y el uso de gRPC en Java. A lo largo del tutorial, estos conceptos serán aplicados para construir aplicaciones robustas y escalables.
+    </p>
+
+    <h3>1.1. Programación Distribuida</h3>
+    <p>
+      <strong>Programación Distribuida:</strong> se refiere al diseño y desarrollo de aplicaciones en las que distintos componentes se ejecutan en diferentes máquinas o procesos y se comunican a través de la red. Esta aproximación permite:
+    </p>
+    <ul>
+      <li><strong>Escalabilidad:</strong> distribuir la carga de trabajo entre varios nodos.</li>
+      <li><strong>Tolerancia a fallos:</strong> aislar errores en componentes individuales sin afectar al sistema completo.</li>
+      <li><strong>Flexibilidad:</strong> permitir la evolución independiente de cada componente.</li>
+    </ul>
+
+    <h3>1.2. gRPC y Protocol Buffers</h3>
+    <p>
+      <strong>gRPC:</strong> es un framework de código abierto desarrollado por Google que facilita la comunicación remota entre servicios. Permite que un cliente invoque métodos en un servidor remoto de forma transparente, como si fueran locales, y está diseñado para soportar aplicaciones de alto rendimiento y escalables.
+    </p>
+    <p>
+      <strong>Protocol Buffers:</strong> es el sistema de serialización de datos que utiliza gRPC. Con Protocol Buffers, defines la estructura de los mensajes en un archivo <code>.proto</code> y, a partir de él, se genera automáticamente el código en Java (entre otros lenguajes). Esto ofrece ventajas en términos de eficiencia y compatibilidad en comparación con formatos como JSON o XML.
+    </p>
+
+    <h3>1.3. Sintaxis Básica de Protocol Buffers</h3>
+    <p>
+      Los archivos de Protocol Buffers (<code>.proto</code>) son la base para definir la estructura de los mensajes que se intercambiarán entre cliente y servidor. A continuación se presentan algunos aspectos clave de su sintaxis:
+    </p>
+    <ul>
+      <li>
+        <strong>Versión de Protocol Buffers:</strong>  
+        Cada archivo <code>.proto</code> debe iniciar especificando la versión, por ejemplo:
+          <div class="code-container">
+              <pre class="language-protobuf"><code>syntax = "proto3";</code></pre></div>
+      </li>
+      <li>
+        <strong>Definición de Mensajes:</strong>  
+        Los mensajes son estructuras de datos que se definen de la siguiente manera:
+          <div class="code-container">
+        <pre class="language-protobuf"><code>message NombreMensaje {
+  tipo campo = número;
+  // Ejemplo:
+  string nombre = 1;
+  int32 edad = 2;
+}</code></pre></div>
+      </li>
+      <li>
+        <strong>Campos:</strong>  
+        Cada campo dentro de un mensaje se declara con un tipo, un nombre y un número único. Los números se usan para identificar el campo en el mensaje serializado y no deben cambiarse una vez definidos.
+      </li>
+      <li>
+        <strong>Opciones para Código Java:</strong>  
+        Para generar el código en Java, se pueden incluir opciones como:
+          <div class="code-container">
+              <pre class="language-protobuf"><code>option java_package = "com.ejemplo.grpc";
+option java_outer_classname = "NombreServicioOuterClass";</code></pre></div>
+      </li>
+      <li>
+        <strong>Comentarios:</strong>  
+        Se pueden incluir comentarios utilizando <code>//</code> para comentarios de una línea o <code>/* ... */</code> para bloques de comentarios.
+      </li>
+    </ul>
+    <p>
+      Este manual básico te ayudará a entender cómo se definen y estructuran los mensajes en Protocol Buffers, lo cual es esencial para el correcto funcionamiento de gRPC.
+    </p>
+
+    <h3>1.4. Implementación en gRPC</h3>
+    <p>
+      Para implementar gRPC se utilizan varios componentes esenciales:
+    </p>
+    <ul>
+      <li>
+        <strong>StreamObserver:</strong> es la interfaz encargada de manejar los flujos asíncronos de mensajes. Provee métodos como <code>onNext</code>, <code>onError</code> y <code>onCompleted</code> para gestionar la recepción y envío de datos en tiempo real.
+      </li>
+      <li>
+        <strong>Stubs (blockingStub y asyncStub):</strong> son los intermediarios generados automáticamente a partir de los archivos <code>.proto</code>. El <code>blockingStub</code> se utiliza para llamadas síncronas (Unary) donde el cliente espera la respuesta del servidor, mientras que el <code>asyncStub</code> permite manejar llamadas asíncronas, esenciales para los métodos de streaming.
+      </li>
+    </ul>
+
+    <p>
+      Este conjunto de conceptos te permitirá comprender la arquitectura detrás de las aplicaciones distribuidas y te preparará para implementar cada uno de los ejemplos prácticos que se desarrollarán a lo largo del tutorial.
+    </p>
+
+    <p>
+      A medida que avances, verás cómo estos fundamentos se aplican en la configuración inicial, la implementación de diferentes modalidades de comunicación (Unary, Client Streaming, Server Streaming y Bidirectional Streaming) y en el despliegue en entornos reales.
+    </p>
+  </section>
+
+  <!-- 2. Configuración Inicial en Eclipse -->
+  <section id="estructura">
+    <h2>2. Configuración Inicial en Eclipse</h2>
+    <p>
+      En este módulo, aprenderás a crear un proyecto Maven en Eclipse y a organizar la estructura de carpetas. Una configuración ordenada es fundamental para mantener un código escalable y facilitar el desarrollo colaborativo.
+    </p>
+
+    <h3>2.1. Creación del Proyecto Maven</h3>
+    <ol>
+      <li>
+        Abre Eclipse y selecciona <strong>File &rarr; New &rarr; Other…</strong>.
+      </li>
+      <li>
+        Escribe <em>"Maven Project"</em> en el buscador, selecciónalo y haz clic en <strong>Next</strong>.
+      </li>
+      <li>
+        Marca la opción <em>Create a simple project</em>, haz clic en <strong>Next</strong>, y completa los campos:
+        <ul>
+          <li><strong>groupId:</strong> <code>com.ejemplo.grpc</code></li>
+          <li><strong>artifactId:</strong> <code>grpc-tutorial</code></li>
+        </ul>
+      </li>
+      <li>
+        Haz clic en <strong>Finish</strong> para crear el proyecto.
+      </li>
+    </ol>
+
+    <h3>2.2. Organización de Carpetas</h3>
+    <p>
+      Es importante organizar adecuadamente el proyecto para separar el código fuente, los recursos y las pruebas. Utiliza el Explorador de Proyectos en Eclipse para crear la siguiente estructura:
+    </p>
+      <div class="code-container">
+    <pre class="language-text"><code>grpc-tutorial/
+├── pom.xml
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   ├── client/         <---+
+│   │   │   ├── server/         <---|- Debemos crear estos paquetes
+│   │   │   └── service/        <---+
+│   │   │   └── pcd.util/        
+│   │   └── resources/
+│   └── test/</code></pre></div>
+    <p>
+      Para crear nuevos paquetes, haz clic derecho sobre <code>src/main/java</code> y selecciona <strong>New &rarr; Package</strong>.
+    </p>
+    <p>
+      Para nuestro ejemplo, usaremos <code>pcd.utils</code>, de esta manera tendremos una ventana para el Servidor y otra para el Cliente (lo encontrarás en tu proyecto MyDelivery o <a href="https://drive.google.com/file/d/0B4F8HbRAhxR3eFNyQXpadzdwOVk/view?usp=drive_link&resourcekey=0-5aikfeHnyl_Tb25qMnAHwA" target="_blank">aquí</a>).
+    </p>
+
+    <h3>2.3. Configuración del pom.xml</h3>
+    <p>
+      El archivo <code>pom.xml</code> es clave para gestionar las dependencias y plugins del proyecto. Abre el archivo y reemplaza su contenido por el siguiente código:
+    </p>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre class="line-numbers language-xml"><code>&lt;project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;groupId&gt;com.ejemplo.grpc&lt;/groupId&gt;
+  &lt;artifactId&gt;grpc-tutorial&lt;/artifactId&gt;
+  &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+
+  &lt;dependencies&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;com.google.protobuf&lt;/groupId&gt;
+      &lt;artifactId&gt;protobuf-java&lt;/artifactId&gt;
+      &lt;version&gt;3.22.2&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;io.grpc&lt;/groupId&gt;
+      &lt;artifactId&gt;grpc-netty-shaded&lt;/artifactId&gt;
+      &lt;version&gt;1.54.0&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;io.grpc&lt;/groupId&gt;
+      &lt;artifactId&gt;grpc-protobuf&lt;/artifactId&gt;
+      &lt;version&gt;1.54.0&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;io.grpc&lt;/groupId&gt;
+      &lt;artifactId&gt;grpc-stub&lt;/artifactId&gt;
+      &lt;version&gt;1.54.0&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;javax.annotation&lt;/groupId&gt;
+      &lt;artifactId&gt;javax.annotation-api&lt;/artifactId&gt;
+      &lt;version&gt;1.3.2&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;io.reactivex.rxjava3&lt;/groupId&gt;
+      &lt;artifactId&gt;rxjava&lt;/artifactId&gt;
+      &lt;version&gt;3.1.8&lt;/version&gt;
+    &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+
+  &lt;properties&gt;
+    &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+  &lt;/properties&gt;
+
+  &lt;build&gt;
+    &lt;defaultGoal&gt;clean generate-sources compile install&lt;/defaultGoal&gt;
+    &lt;plugins&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;com.github.os72&lt;/groupId&gt;
+        &lt;artifactId&gt;protoc-jar-maven-plugin&lt;/artifactId&gt;
+        &lt;version&gt;3.6.0.1&lt;/version&gt;
+        &lt;executions&gt;
+          &lt;execution&gt;
+            &lt;phase&gt;generate-sources&lt;/phase&gt;
+            &lt;goals&gt;
+              &lt;goal&gt;run&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+              &lt;includeMavenTypes&gt;direct&lt;/includeMavenTypes&gt;
+              &lt;inputDirectories&gt;
+                &lt;include&gt;src/main/resources&lt;/include&gt;
+              &lt;/inputDirectories&gt;
+              &lt;!-- Descomentar SOLO SI TIENES macOS con arquitectura Intel (x86_64)
+              &lt;protocArtifact&gt;com.google.protobuf:protoc:3.22.2:exe:osx-x86_64&lt;/protocArtifact&gt;
+              --&gt;
+              &lt;outputTargets&gt;
+                &lt;outputTarget&gt;
+                  &lt;type&gt;java&lt;/type&gt;
+                  &lt;outputDirectory&gt;src/main/java&lt;/outputDirectory&gt;
+                &lt;/outputTarget&gt;
+                &lt;outputTarget&gt;
+                  &lt;type&gt;grpc-java&lt;/type&gt;
+                  &lt;pluginArtifact&gt;io.grpc:protoc-gen-grpc-java:1.54.0&lt;/pluginArtifact&gt;
+                  &lt;outputDirectory&gt;src/main/java&lt;/outputDirectory&gt;
+                &lt;/outputTarget&gt;
+              &lt;/outputTargets&gt;
+            &lt;/configuration&gt;
+          &lt;/execution&gt;
+        &lt;/executions&gt;
+      &lt;/plugin&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+        &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+        &lt;version&gt;3.8.0&lt;/version&gt;
+        &lt;configuration&gt;
+          &lt;source&gt;1.8&lt;/source&gt;
+          &lt;target&gt;1.8&lt;/target&gt;
+        &lt;/configuration&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+  &lt;/build&gt;
+&lt;/project&gt;
+</code></pre>
+    </div>
+    <p>
+      Una vez guardado el archivo, haz clic derecho sobre el proyecto en Eclipse y selecciona <strong>Maven &rarr; Update Project…</strong> para descargar las dependencias y generar el código a partir del archivo <code>.proto</code>.
+    </p>
+
+    <p>
+      Con estos pasos, tendrás configurado correctamente el entorno de desarrollo en Eclipse, listo para implementar y experimentar con los ejemplos de gRPC en Java.
+    </p>
+  </section>
+
+  <!-- 3. Versión 1 – Comunicación Unary (Básico) -->
+  <section id="v1">
+    <h2>3. Comunicación Unary (Básico)</h2>
+    <p>
+      En esta versión, el cliente envía una única solicitud y el servidor responde con un único mensaje. A continuación se describen, de forma concisa y paso a paso, las acciones necesarias para construir la aplicación en tres partes: la configuración del servidor, la implementación de la lógica del servicio y la configuración del cliente.
+    </p>
+
+    <h3>3.1. Archivo .proto (Unary)</h3>
+    <p>
+      Este archivo define el servicio, los mensajes y las opciones para generar el código en Java. Cada parte tiene un propósito:
+      <ul>
+        <li><strong>syntax = "proto3";</strong> indica la versión de Protocol Buffers.</li>
+        <li><strong>Opciones de Java:</strong> <code>java_package</code> y <code>java_outer_classname</code> configuran el paquete y la clase contenedora.</li>
+        <li><strong>Definición del service:</strong> se declara el método <code>saludar</code> que recibe una <code>Solicitud</code> y retorna una <code>Respuesta</code>.</li>
+        <li><strong>Mensajes:</strong> <code>Solicitud</code> y <code>Respuesta</code> describen la estructura de los datos intercambiados.</li>
+      </ul>
+    </p>
+    <p>Para ello:</p>
+    <ol>
+      <li>
+        Crea el archivo: en Eclipse, haz clic derecho en <code>src/main/resources</code> &rarr; <strong>New &rarr; File</strong>. Nómbralo <code>simple_service.proto</code> y haz clic en <em>Finish</em>.
+      </li>
+      <li>
+        Pega el siguiente código:
+      </li>
+    </ol>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre class="line-numbers language-protobuf"><code>syntax = "proto3";
+
+// Opciones para generar código en Java:
+// - java_package define el paquete en el que se ubicará el código generado.
+// - java_outer_classname establece el nombre de la clase contenedora.
+option java_package = "grpc.ejemplo.proto";
+option java_outer_classname = "SimpleServiceOuterClass";
+
+package main;
+
+// Definición del servicio SimpleService con un método Unary llamado "saludar".
+// Este método recibe un mensaje de tipo Solicitud y retorna un mensaje de tipo Respuesta.
+service SimpleService {
+  rpc saludar (Solicitud) returns (Respuesta);
+}
+
+// Mensaje de solicitud que contiene un campo "nombre" de tipo string.
+message Solicitud {
+  string nombre = 1;
+}
+
+// Mensaje de respuesta que contiene un campo "mensaje" de tipo string.
+message Respuesta {
+  string mensaje = 1;
+}
+</code></pre>
+    </div>
+    <p>
+      Este archivo es la base de la comunicación, ya que define la estructura y el comportamiento esperado entre cliente y servidor.
+    </p>
+
+    <!-- 3.2 Implementación del Servicio -->
+    <h3>3.2. Implementación del Servicio (MyService.java)</h3>
+    <p>
+      A continuación se detallan los pasos para implementar la lógica del servicio:
+    </p>
+    <ol>
+      <li>
+        En el paquete <code>service</code>, crea una clase llamada <code>MyService</code> que herede de la clase base generada (<code>SimpleServiceGrpc.SimpleServiceImplBase</code>).
+      </li>
+      <li>
+        Importa la librería <code>StreamObserver</code>: <code>io.grpc.stub.StreamObserver</code> para gestionar respuestas de forma asíncrona.
+      </li>
+      <li>
+        Sobrescribe el método <code>saludar</code>, recibe un objeto <code>Solicitud</code> que contiene el dato enviado por el cliente (por ejemplo, el campo <code>nombre</code>) y un <code>StreamObserver&lt;Respuesta&gt;</code> para enviar la respuesta.
+      </li>
+      <ul>
+      <li>
+        Procesa la solicitud: extrae el valor del campo <code>nombre</code> de la solicitud y aplica la transformación deseada (por ejemplo, concatenar un saludo).
+      </li>
+      <li>
+        Construye la respuesta: crea un objeto <code>Respuesta</code> asignando el mensaje transformado al campo correspondiente.
+      </li>
+      <li>
+        Envía la respuesta: usa el <code>StreamObserver</code> para enviar la respuesta con <code>onNext()</code> y finaliza el proceso con <code>onCompleted()</code>.
+      </li>
+      </ul>
+    </ol>
+    <p>A continuación:</p>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre class="line-numbers language-java"><code>package service;
+
+import grpc.ejemplo.proto.SimpleServiceGrpc;
+import grpc.ejemplo.proto.SimpleServiceOuterClass.Solicitud;
+import grpc.ejemplo.proto.SimpleServiceOuterClass.Respuesta;
+import io.grpc.stub.StreamObserver;
+import pcd.util.*;
+
+public class MyService extends SimpleServiceGrpc.SimpleServiceImplBase {
+	private final Ventana v;
+	
+	public MyService(Ventana v_)
+	{
+		v = v_;
+	}
+	
+    // Implementación del método Unary "saludar"
+    @Override
+    public void saludar(Solicitud request, StreamObserver&lt;Respuesta&gt; responseObserver) {
+        // Extraer el campo "nombre" de la solicitud recibida.
+        String nombre = request.getNombre();
+        v.addText("[Servidor] Petición 'saludar' para: " + nombre);
+
+        // Procesar el mensaje, por ejemplo, concatenar un saludo.
+        String mensaje = "Hola, " + nombre + "! Bienvenido a gRPC (Unary).";
+        // Construir la respuesta con el mensaje procesado.
+        Respuesta resp = Respuesta.newBuilder().setMensaje(mensaje).build();
+
+        // Enviar la respuesta al cliente y finalizar la comunicación.
+        responseObserver.onNext(resp);
+        responseObserver.onCompleted();
+
+        v.addText("[Servidor] Respuesta 'saludar' enviada.");
+    }
+}
+</code></pre>
+    </div>
+    <p>
+      Así, el servicio procesa la solicitud del cliente, transforma el mensaje y responde de forma asíncrona usando el patrón observer.
+    </p>
+
+    <!-- 3.3 Configuración del Servidor -->
+    <h3>3.3. Configuración del Servidor (MyServer.java)</h3>
+    <p>
+      A continuación se describen, paso a paso, las acciones para configurar la aplicación del servidor:
+    </p>
+    <ol>
+      <li>
+        En el paquete <code>server</code>, crea una clase llamada <code>MyServer</code>.
+      </li>
+      <li>
+        Importa las librerías: <code>io.grpc.Server</code> e <code>io.grpc.ServerBuilder</code>, necesarias para configurar el servidor.
+      </li>
+      <li>
+        Define el puerto (por ejemplo, 50051) y utiliza <code>ServerBuilder</code> para registrar la instancia del servicio (implementada en <code>MyService</code>).
+      </li>
+      <li>
+        Llama a <code>start()</code> para comenzar a escuchar solicitudes.
+      </li>
+      <li>
+        Usa <code>awaitTermination()</code> para bloquear el hilo principal y mantener el servidor en ejecución.
+      </li>
+    </ol>
+    <p>A continuación:</p>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre class="line-numbers language-java"><code>package server;
+
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
+import java.io.IOException;
+import service.MyService;
+import pcd.util.*;
+
+public class MyServer {
+	
+    public static void main(String[] args) throws IOException, InterruptedException {
+    	Ventana v = new Ventana ("Servidor", 30, 30);
+    	
+        // Configurar el servidor en el puerto 50051 y registrar la implementación del servicio.
+        Server server = ServerBuilder
+                .forPort(50051)
+                .addService(new MyService(v)) // Registra la instancia de MyService.
+                .build();
+
+        // Iniciar el servidor para comenzar a escuchar peticiones.
+        server.start();
+        v.addText("Servidor gRPC (Unary) en puerto 50051...");
+
+        // Bloquear el hilo principal para mantener el servidor en ejecución.
+        server.awaitTermination();
+    }
+}
+</code></pre>
+    </div>
+    <p>
+      Esta configuración establece el entorno del servidor, permitiendo que escuche y procese las solicitudes entrantes de forma continua.
+    </p>
+
+    <!-- 3.4 Configuración del Cliente -->
+    <h3>3.4. Configuración del Cliente (MyClient.java)</h3>
+    <p>
+      A continuación se describen los pasos para configurar la aplicación del cliente:
+    </p>
+    <ol>
+      <li>
+        En el paquete <code>client</code>, crea una clase llamada <code>MyClient</code>.
+      </li>
+      <li>
+        Importa las librerías <code>io.grpc.ManagedChannel</code> e <code>io.grpc.ManagedChannelBuilder</code> para establecer el canal de comunicación.
+      </li>
+      <li>
+        Crea un canal que se conecte a la dirección del servidor (en este caso, <code>localhost</code>) y el puerto configurado (por ejemplo, 50051). Para desarrollo, usa <code>usePlaintext()</code>.
+      </li>
+      <li>
+        A partir del canal, inicializa el stub (<code>blockingStub</code>) que actúa como un proxy para invocar el método remoto de forma síncrona.
+      </li>
+      <li>
+        Construye un objeto <code>Solicitud</code> asignando el valor al campo <code>nombre</code> y llama al método <code>saludar</code> a través del stub (<code>blockingStub</code>).
+      </li>
+      <li>
+        Una vez recibida la respuesta, extrae el contenido del campo <code>mensaje</code> y muéstralo en la consola.
+      </li>
+      <li>
+        Finalmente, llama a <code>shutdown()</code> y <code>awaitTermination()</code> para liberar los recursos.
+      </li>
+    </ol>
+    <p>A continuación:</p>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre class="line-numbers language-java"><code>package client;
+
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
+import grpc.ejemplo.proto.SimpleServiceGrpc;
+import grpc.ejemplo.proto.SimpleServiceOuterClass.Solicitud;
+import grpc.ejemplo.proto.SimpleServiceOuterClass.Respuesta;
+import java.util.concurrent.TimeUnit;
+import pcd.util.*;
+
+public class MyClient {
+    // Canal para comunicarse con el servidor.
+    private final ManagedChannel channel;
+    // Stub bloqueante para realizar llamadas síncronas (Unary).
+    private final SimpleServiceGrpc.SimpleServiceBlockingStub blockingStub;
+    private final Ventana v;
+
+    public MyClient(String host, int port) {
+        // Crear el canal especificando la dirección y el puerto del servidor.
+        channel = ManagedChannelBuilder
+                .forAddress(host, port)
+                .usePlaintext() // Modo sin cifrado para facilitar pruebas.
+                .build();
+
+        // Inicializar el stub bloqueante para invocar el método remoto.
+        blockingStub = SimpleServiceGrpc.newBlockingStub(channel);
+        
+        // Ventana
+        v = new Ventana("Cliente",350, 30);
+        
+    }
+
+    // Método para enviar la solicitud de saludo al servidor.
+    public void ejecutarSaludo(String nombre) {
+        v.addText("\n--- Ejecutar Saludo (Unary) ---");
+        // Construir la solicitud asignando el valor al campo "nombre".
+        Solicitud req = Solicitud.newBuilder().setNombre(nombre).build();
+        try {
+            // Invocar el método "saludar" y recibir la respuesta.
+            Respuesta resp = blockingStub.saludar(req);
+            v.addText("[Cliente] Respuesta: " + resp.getMensaje());
+        } catch (StatusRuntimeException e) {
+            System.err.println("[Cliente] Error en 'saludar': " + e.getStatus());
+        }
+    }
+
+    // Método para cerrar el canal de comunicación y liberar recursos.
+    public void shutdown() throws InterruptedException {
+    	v.addText("[Cliente] Cerrando canal...");
+        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        v.addText("[Cliente] Canal cerrado.");
+    }
+
+    public static void main(String[] args) {
+        // Conectar al servidor en localhost en el puerto 50051.
+        MyClient client = new MyClient("localhost", 50051);
+        try {
+            // Enviar la solicitud de saludo con el nombre "Mundo".
+            client.ejecutarSaludo("Mundo");
+        } finally {
+            try {
+                client.shutdown();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+}
+</code></pre>
+    </div>
+    <p>
+      Con estos pasos, el cliente establece un canal de comunicación, envía una solicitud, procesa la respuesta y finalmente cierra el canal, asegurando un uso adecuado de los recursos. Puedes ver una simulación:
+    </p>
+      
+<div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 30px auto; font-family: 'Courier New', monospace;">
+  <div style="text-align: center; max-width: 400px;">
+    <p style="margin-bottom: 8px; font-weight: bold;">Vista del Servidor</p>
+    <pre style="text-align: left; background-color: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow-x: auto;">
+Servidor gRPC (Unary) en puerto 50051...
+[Servidor] Petición 'saludar' para: Mundo
+[Servidor] Respuesta 'saludar' enviada.
+    </pre>
+  </div>
+  <div style="text-align: center; max-width: 400px;">
+    <p style="margin-bottom: 8px; font-weight: bold;">Vista del Cliente</p>
+    <pre style="text-align: left; background-color: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow-x: auto;">
+--- Ejecutar Saludo (Unary) ---
+[Cliente] Respuesta: Hola, Mundo! Bienvenido a gRPC (Unary).
+[Cliente] Cerrando canal...
+[Cliente] Canal cerrado.
+</pre>
+  </div>
+</div>
+
+  </section>
+
+  <!-- 4. Versión 2 – Client Streaming -->
+  <section id="v2">
+    <h2>4. Comunicación Client Streaming</h2>
+    <p>
+      A continuación, se extiende la funcionalidad para permitir que el cliente envíe múltiples mensajes de forma secuencial (Client Streaming) y, al finalizar, el servidor responda con un mensaje consolidado. A continuación se describen, paso a paso, las acciones necesarias para implementar esta funcionalidad.
+    </p>
+
+    <!-- Actualización del archivo .proto -->
+    <h3>4.1. Actualizar el archivo .proto para Client Streaming</h3>
+    <p>
+      Para definir la estructura de Client Streaming, debes modificar el archivo <code>simple_service.proto</code>:
+    </p>
+    <ol>
+      <li>
+        Localiza y abre <code>src/main/resources/proto/simple_service.proto</code> en Eclipse.
+      </li>
+      <li>
+        Después del método <code>saludar</code>, incluye la nueva definición del método:
+
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre class="line-numbers language-protobuf"><code>rpc saludarGrupo (stream Solicitud) returns (Respuesta);</code></pre></div>
+
+      </li>
+      <li>
+        Guarda el archivo y actualiza el proyecto (Run As &rarr; Maven generate-sources) para regenerar las clases.
+      </li>
+    </ol>
+    <p>
+      Este cambio indica que el método <code>saludarGrupo</code> recibirá un flujo de mensajes de tipo <code>Solicitud</code> y, tras procesarlos, retornará una única respuesta de tipo <code>Respuesta</code>.
+    </p>
+
+    <!-- Implementación de la lógica del servicio en el servidor -->
+    <h3>4.2. Implementar la Lógica del Servicio (MyService.java)</h3>
+    <p>
+      A continuación se describen, paso a paso, las acciones necesarias para implementar la lógica de Client Streaming en el servidor:
+    </p>
+    <ol>
+      <li>
+        Abre el archivo <code>src/main/java/service/MyService.java</code>.
+      </li>        
+      <li>
+        Sobrescribe el método <code>saludarGrupo</code>. En este método, dado que no se recibe un único mensaje, es necesario devolver un objeto <code>StreamObserver&lt;Solicitud&gt;</code> que permitirá recibir todos los mensajes enviados por el cliente.
+      </li>
+      <li>
+        Dentro del método, crea un nuevo <code>StreamObserver&lt;Solicitud&gt;</code> que implemente:
+        <ul>
+          <li>
+            <strong>onNext:</strong> cada vez que se recibe un mensaje, extrae el campo <code>nombre</code> y acumula su valor. Se utiliza un <code>StringBuilder</code> para concatenar los nombres, añadiendo separadores cuando sea necesario.
+          </li>
+          <li>
+            <strong>onError:</strong> gestiona cualquier error durante la transmisión, registrándolo para facilitar la depuración.
+          </li>
+          <li>
+            <strong>onCompleted:</strong> cuando el cliente finaliza el envío de mensajes, procesa los datos acumulados para construir una respuesta final. Se utiliza el <code>StreamObserver</code> recibido como parámetro para enviar la respuesta (con <code>onNext()</code>) y luego notificar el fin de la comunicación (con <code>onCompleted()</code>).
+          </li>
+        </ul>
+      </li>
+    </ol>
+    <p>A continuación:</p>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre class="line-numbers language-java"><code>@Override
+public StreamObserver&lt;Solicitud&gt; saludarGrupo(StreamObserver&lt;Respuesta&gt; responseObserver) {
+    // Se devuelve un StreamObserver para recibir múltiples mensajes del cliente.
+    return new StreamObserver&lt;Solicitud&gt;() {
+        // Utilizamos un StringBuilder para acumular los nombres.
+        private final StringBuilder nombres = new StringBuilder();
+        // Contador para gestionar la separación entre nombres.
+        private int contador = 0;
+
+        @Override
+        public void onNext(Solicitud sol) {
+            // Extraer el nombre del mensaje recibido.
+            String nombre = sol.getNombre();
+            // Si no es el primer mensaje, agregar una coma como separador.
+            if (contador > 0) {
+                nombres.append(", ");
+            }
+            nombres.append(nombre);
+            contador++;
+            v.addText("[Servidor] Recibido nombre (grupo): " + nombre);
+        }
+
+        @Override
+        public void onError(Throwable t) {
+            System.err.println("[Servidor] Error en 'saludarGrupo': " + t.getMessage());
+        }
+
+        @Override
+        public void onCompleted() {
+            // Una vez recibidos todos los mensajes, construir una respuesta consolidada.
+            String mensaje = "Saludos a todos: " + nombres.toString();
+            Respuesta resp = Respuesta.newBuilder().setMensaje(mensaje).build();
+            // Enviar la respuesta y finalizar el flujo.
+            responseObserver.onNext(resp);
+            responseObserver.onCompleted();
+            v.addText("[Servidor] saludarGrupo completado con " + contador + " nombres.");
+        }
+    };
+}
+</code></pre>
+    </div>
+    <p>
+      Este método ilustra el patrón observer aplicado al client streaming, donde el <code>StreamObserver</code> recibe cada mensaje y, tras su finalización, envía una respuesta única consolidada.
+    </p>
+
+    <!-- Configuración del cliente para Client Streaming -->
+    <h3>4.3. Configurar la Aplicación del Cliente (MyClient.java)</h3>
+    <p>
+      A continuación se detallan los pasos para configurar el cliente que enviará múltiples mensajes:
+    </p>
+    <ol>
+      <li>
+        Abre el archivo <code>src/main/java/client/MyClient.java</code>.
+      </li>
+      <li>
+        Agrega el atributo <code>asyncStub</code>. Dado que ahora la comunicación es asíncrona, necesitamos un nuevo stub, por tanto, añade junto al atributo <code>blockingStub</code> el siguiente:
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>        
+        <pre class="line-numbers language-java"><code>// Stub asíncrono para llamadas de Client Streaming
+private final SimpleServiceGrpc.SimpleServiceStub asyncStub;</code></pre></div>
+      </li>
+      <li>
+        Inicializa el atributo: en el constructor de <code>MyClient</code>, después de inicializar el <code>blockingStub</code>, añade:
+            <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+        <pre class="line-numbers language-java"><code>// Inicializar el stub asíncrono para gestionar llamadas no bloqueantes.
+asyncStub = SimpleServiceGrpc.newStub(channel);</code></pre></div>
+      </li>
+      <li>
+        Importa la librería <code>io.grpc.stub.StreamObserver</code>.    
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>        
+        <pre class="line-numbers language-java"><code>import io.grpc.stub.StreamObserver;</code></pre></div>          
+      </li>
+      <li>
+        En el <code>main</code>, llama al método <code>ejecutarSaludoGrupo</code>:
+
+            <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+        <pre class="line-numbers language-java"><code>// Enviar la solicitud de saludo a múltiples nombres.
+client.ejecutarSaludoGrupo("Luis", "Carlos", "Sofía");</code></pre></div>
+      </li>      
+      <li>
+        Agrega un método llamado <code>ejecutarSaludoGrupo</code> que:
+        <ul>
+          <li>Utilice un <code>CountDownLatch</code> para esperar la respuesta final.</li>
+          <li>Defina un <code>StreamObserver&lt;Respuesta&gt;</code> para recibir la respuesta consolidada del servidor.</li>
+          <li>Obtenga un <code>StreamObserver&lt;Solicitud&gt;</code> mediante <code>asyncStub.saludarGrupo(responseObserver)</code> y envíe cada mensaje en un bucle (usando <code>onNext()</code>).</li>
+          <li>Finalice el envío con <code>onCompleted()</code> y espere la respuesta.</li>
+        </ul>
+      </li>
+    </ol>
+    <p>A continuación:</p>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre class="line-numbers language-java"><code>public void ejecutarSaludoGrupo(String... nombres) {
+    v.addText("\n--- Client Streaming: saludarGrupo ---");
+    // Crear un CountDownLatch para esperar la respuesta final del servidor.
+    final java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
+
+    // Definir el StreamObserver para recibir la respuesta consolidada.
+    StreamObserver&lt;Respuesta&gt; responseObserver = new StreamObserver&lt;Respuesta&gt;() {
+        @Override
+        public void onNext(Respuesta r) {
+            v.addText("[Cliente] Respuesta final: " + r.getMensaje());
+        }
+        @Override
+        public void onError(Throwable t) {
+            System.err.println("[Cliente] Error en saludarGrupo: " + t.getMessage());
+            latch.countDown();
+        }
+        @Override
+        public void onCompleted() {
+            v.addText("[Cliente] 'saludarGrupo' completado por el servidor.");
+            latch.countDown();
+        }
+    };
+
+    // Obtener el StreamObserver para enviar solicitudes usando el asyncStub.
+    StreamObserver&lt;Solicitud&gt; requestObserver = asyncStub.saludarGrupo(responseObserver);
+    try {
+        // Enviar cada mensaje al servidor.
+        for (String n : nombres) {
+            v.addText("[Cliente] -> " + n);
+            Solicitud req = Solicitud.newBuilder().setNombre(n).build();
+            requestObserver.onNext(req);
+            // Simular un breve retraso entre envíos.
+            Thread.sleep(300);
+        }
+    } catch (RuntimeException | InterruptedException e) {
+        requestObserver.onError(e);
+        Thread.currentThread().interrupt();
+    }
+    // Finalizar el envío de solicitudes.
+    requestObserver.onCompleted();
+
+    try {
+        // Esperar a que se reciba la respuesta final.
+        latch.await();
+    } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+    }
+    v.addText("--- Fin Client Streaming ---");
+}
+</code></pre>
+    </div>
+    <p>
+      Así, el cliente envía múltiples mensajes de forma asíncrona y espera una respuesta única que consolide toda la información enviada. A continuación puedes ver una simulación:
+    </p>
+
+<div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 30px auto; font-family: 'Courier New', monospace;">
+  <div style="text-align: center; max-width: 400px;">
+    <p style="margin-bottom: 8px; font-weight: bold;">Vista del Servidor</p>
+    <pre style="text-align: left; background-color: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow-x: auto;">
+Servidor gRPC (Unary) en puerto 50051...
+[Servidor] Petición 'saludar' para: Mundo
+[Servidor] Respuesta 'saludar' enviada.
+[Servidor] Recibido nombre (grupo): Luis
+[Servidor] Recibido nombre (grupo): Carlos
+[Servidor] Recibido nombre (grupo): Sofía
+[Servidor] saludarGrupo completado con 3 nombres.
+    </pre>
+  </div>
+  <div style="text-align: center; max-width: 400px;">
+    <p style="margin-bottom: 8px; font-weight: bold;">Vista del Cliente</p>
+    <pre style="text-align: left; background-color: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow-x: auto;">
+--- Ejecutar Saludo (Unary) ---
+ [Cliente] Respuesta: Hola, Mundo! Bienvenido a gRPC (Unary).
+ 
+--- Client Streaming: saludarGrupo ---
+ [Cliente] -> Luis
+ [Cliente] -> Carlos
+ [Cliente] -> Sofía
+ [Cliente] Respuesta final: Saludos a todos: Luis, Carlos, Sofía
+ [Cliente] 'saludarGrupo' completado por el servidor.
+ --- Fin Client Streaming ---
+ [Cliente] Cerrando canal...
+ [Cliente] Canal cerrado.
+</pre>
+  </div>
+</div>      
+      
+  </section>
+
+  <!-- 5. Versión 3 – Server Streaming -->
+  <section id="v3">
+    <h2>5. Comunicación Server Streaming</h2>
+    <p>
+      En esta versión, el cliente envía una única solicitud y el servidor responde enviando una secuencia de mensajes de forma asíncrona. A continuación se describen, paso a paso, las acciones necesarias para implementar este modelo.
+    </p>
+
+    <!-- Actualización del archivo .proto -->
+    <h3>5.1. Actualizar el archivo .proto para Server Streaming</h3>
+    <p>
+      Para definir la estructura de Server Streaming, debes modificar el archivo <code>simple_service.proto</code>:
+    </p>
+    <ol>
+      <li>
+        Localiza y abre <code>src/main/resources/proto/simple_service.proto</code> en Eclipse.
+      </li>
+      <li>
+        Después del método <code>saludar</code>, incluye la nueva definición del método:
+
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre class="line-numbers language-protobuf"><code>rpc bienvenida (Solicitud) returns (stream Respuesta);</code></pre></div>
+
+      </li>
+      <li>
+        Guarda el archivo y actualiza el proyecto (Run As &rarr; Maven generate-sources) para regenerar las clases.
+      </li>
+    </ol>
+    <p>
+      Este cambio indica que el método <code>bienvenida</code> recibirá un mensaje de tipo <code>Solicitud</code> y, tras procesarlo, retornará un flujo de mensajes de tipo <code>Respuesta</code>.
+    </p>
+
+    <!-- Lógica del servicio en el servidor -->
+    <h3>5.2. Implementar la Lógica del Servicio para Server Streaming (MyService.java)</h3>
+    <p>
+      Para implementar Server Streaming, sigue estos pasos en la clase de servicio:
+    </p>
+    <ol>
+      <li>
+        Abre <code>src/main/java/service/MyService.java</code>.
+      </li>
+      <li>
+        Sobrescribe el método <code>bienvenida</code> (definido en el archivo <code>.proto</code>) que recibe:
+        <ul>
+          <li>Un objeto <code>Solicitud</code> (con el dato “nombre” del cliente).</li>
+          <li>Un objeto <code>StreamObserver&lt;Respuesta&gt;</code> para enviar múltiples mensajes al cliente.</li>
+        </ul>
+      </li>
+      <li>
+        Procesa la solicitud y envía respuestas:
+        <ul>
+          <li>Extrae el valor del campo <code>nombre</code> de la solicitud.</li>
+          <li>Define una serie de mensajes (por ejemplo, un array) que se enviarán secuencialmente.</li>
+          <li>Utiliza un bucle para enviar cada mensaje individualmente llamando a <code>onNext()</code> del <code>StreamObserver</code>.</li>
+          <li>Al finalizar el bucle, llama a <code>onCompleted()</code> para notificar que no habrá más mensajes.</li>
+        </ul>
+      </li>
+    </ol>
+    <p>A continuación:</p>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre class="line-numbers language-java"><code>@Override
+public void bienvenida(Solicitud request, StreamObserver&lt;Respuesta&gt; responseObserver) {
+    // Extraer el campo "nombre" de la solicitud.
+    String nombre = request.getNombre();
+    v.addText("[Servidor] 'bienvenida' para: " + nombre);
+
+    // Definir una serie de mensajes que se enviarán al cliente.
+    String[] mensajes = {
+        "Hola " + nombre + ", ¡bienvenido!",
+        "Este es un mensaje de server streaming.",
+        "Recibirás varios mensajes secuencialmente.",
+        "Fin de la bienvenida."
+    };
+
+    try {
+        // Enviar cada mensaje al cliente con un breve retraso para simular un flujo.
+        for (String msg : mensajes) {
+            Respuesta r = Respuesta.newBuilder().setMensaje(msg).build();
+            responseObserver.onNext(r);
+            Thread.sleep(300);
+        }
+    } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        System.err.println("[Servidor] Interrumpido en 'bienvenida'.");
+        responseObserver.onError(e);
+        return;
+    }
+    // Finalizar la transmisión de mensajes.
+    responseObserver.onCompleted();
+    v.addText("[Servidor] 'bienvenida' completada.");
+}
+</code></pre>
+    </div>
+    <p>
+      El <code>StreamObserver</code> envía múltiples mensajes al cliente a medida que se procesan, sin bloquear la ejecución.
+    </p>
+
+    <!-- Configuración del cliente para server streaming -->
+    <h3>5.3. Configurar la Aplicación del Cliente para Server Streaming (MyClient.java)</h3>
+    <p>
+      Para que el cliente procese la secuencia de respuestas del servidor, sigue estos pasos:
+    </p>
+    <ol>
+      <li>
+        Abre <code>src/main/java/client/MyClient.java</code>.
+      </li>
+      <li>
+        Asegúrate de que el canal se cree con la dirección y puerto correctos, y que se utilice el <code>blockingStub</code> para facilitar la iteración sobre las respuestas (lo hicimos en versiones anteriores).
+      </li>
+      <li>
+        En el <code>main</code>, llama al método <code>ejecutarBienvenida</code>:
+
+            <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+        <pre class="line-numbers language-java"><code>// Enviar la solicitud de bienvenida.
+client.ejecutarBienvenida("Mundo");</code></pre></div>
+      </li>        
+      <li>
+        Agrega el método <code>ejecutarBienvenida</code>. Este método:
+        <ul>
+          <li>Construye una solicitud con el campo <code>nombre</code>.</li>
+          <li>Utiliza el <code>blockingStub</code> para invocar el método <code>bienvenida</code>, que retorna un iterador sobre las respuestas.</li>
+          <li>Itera sobre el iterador y procese cada respuesta, mostrando el contenido recibido.</li>
+        </ul>
+      </li>
+    </ol>
+    <p>A continuación:</p>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre class="line-numbers language-java"><code>public void ejecutarBienvenida(String nombre) {
+    v.addText("\n--- Server Streaming: bienvenida ---");
+    // Construir la solicitud con el campo "nombre".
+    Solicitud req = Solicitud.newBuilder().setNombre(nombre).build();
+
+    try {
+        // Invocar el método "bienvenida" y obtener un iterador para el stream de respuestas.
+        java.util.Iterator&lt;Respuesta&gt; iter = blockingStub.bienvenida(req);
+        // Iterar sobre cada respuesta recibida.
+        while (iter.hasNext()) {
+            Respuesta r = iter.next();
+            v.addText("[Cliente] <- " + r.getMensaje());
+        }
+        v.addText("[Cliente] 'bienvenida' finalizada.");
+    } catch (StatusRuntimeException e) {
+        System.err.println("[Cliente] Error en 'bienvenida': " + e.getStatus());
+    }
+}
+</code></pre>
+    </div>
+    <p>
+      Con este método, el cliente envía una única solicitud y recorre secuencialmente cada mensaje enviado por el servidor, procesándolos de forma iterativa. A continuación puedes ver una simulación:
+    </p>
+
+<div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 30px auto; font-family: 'Courier New', monospace;">
+  <div style="text-align: center; max-width: 400px;">
+    <p style="margin-bottom: 8px; font-weight: bold;">Vista del Servidor</p>
+    <pre style="text-align: left; background-color: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow-x: auto;">
+Servidor gRPC (Unary) en puerto 50051...
+[Servidor] Petición 'saludar' para: Mundo
+[Servidor] Respuesta 'saludar' enviada.
+[Servidor] Recibido nombre (grupo): Luis
+[Servidor] Recibido nombre (grupo): Carlos
+[Servidor] Recibido nombre (grupo): Sofía
+[Servidor] saludarGrupo completado con 3 nombres.
+[Servidor] 'bienvenida' para: Mundo
+[Servidor] 'bienvenida' completada.
+    </pre>
+  </div>
+  <div style="text-align: center; max-width: 400px;">
+    <p style="margin-bottom: 8px; font-weight: bold;">Vista del Cliente</p>
+    <pre style="text-align: left; background-color: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow-x: auto;">
+--- Ejecutar Saludo (Unary) ---
+ [Cliente] Respuesta: Hola, Mundo! Bienvenido a gRPC (Unary).
+ 
+--- Client Streaming: saludarGrupo ---
+ [Cliente] -> Luis
+ [Cliente] -> Carlos
+ [Cliente] -> Sofía
+ [Cliente] Respuesta final: Saludos a todos: Luis, Carlos, Sofía
+ [Cliente] 'saludarGrupo' completado por el servidor.
+ --- Fin Client Streaming ---
+ 
+--- Server Streaming: bienvenida ---
+ [Cliente] <- Hola Mundo, ¡bienvenido!
+ [Cliente] <- Este es un mensaje de server streaming.
+ [Cliente] <- Recibirás varios mensajes secuencialmente.
+ [Cliente] <- Fin de la bienvenida.
+ [Cliente] 'bienvenida' finalizada.
+ [Cliente] Cerrando canal...
+ [Cliente] Canal cerrado.</pre>
+  </div>
+</div> 
+  </section>
+
+  <!-- 6. Comunicación Bidirectional Streaming -->
+  <section id="v4">
+    <h2>6. Comunicación Bidirectional Streaming</h2>
+    <p>
+      En esta versión se implementa la comunicación bidireccional, donde el cliente y el servidor pueden enviar y recibir mensajes simultáneamente. A continuación se describen, paso a paso, las acciones necesarias para establecer este modelo de transmisión.
+    </p>
+
+    <!-- Actualización del archivo .proto -->
+    <h3>6.1. Actualizar el Archivo .proto para Bidirectional Streaming</h3>
+    <p>
+      Para definir la estructura de Bidirectional Streaming, modifica el archivo <code>simple_service.proto</code> para incluir un método que reciba y retorne un stream. Esto permite que el servidor y el cliente intercambien múltiples mensajes de forma continua.
+    </p>
+    <ol>
+      <li>
+        Abre el archivo <code>src/main/resources/proto/simple_service.proto</code> en Eclipse.
+      </li>
+      <li>
+        Agrega el método: tras los métodos existentes, define el siguiente:
+        <div class="code-container">
+        <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+        <pre class="line-numbers language-protobuf"><code>rpc charlar (stream Solicitud) returns (stream Respuesta);</code></pre></div>
+      </li>                
+      <li>
+        Guarda y actualiza: guarda el archivo y ejecuta Run As &rarr; Maven generate-sources para regenerar las clases generadas.
+      </li>
+    </ol>
+    <p>
+      Con este cambio, el método <code>charlar</code> envía y recibe flujos de mensajes, habilitando la comunicación en ambos sentidos.
+    </p>
+
+    <!-- Implementación de la lógica del servicio en el servidor -->
+    <h3>6.2. Implementar la Lógica del Servicio (MyService.java)</h3>
+    <p>
+      A continuación se describen, paso a paso, las acciones para manejar el bidirectional streaming en el servidor:
+    </p>
+    <ol>
+      <li>
+        Abre <code>src/main/java/service/MyService.java</code>, donde se definen los métodos del servicio gRPC.
+      </li>
+      <li>
+        Nos aseguramos de tener importado <code>io.grpc.stub.StreamObserver</code> para gestionar la comunicación asíncrona.
+      </li>
+      <li>
+        Sobrescribe el método <code>charlar</code>. Este método no retorna un objeto <code>Respuesta</code> único, sino un <code>StreamObserver&lt;Solicitud&gt;</code> para recibir mensajes de manera continua.
+      </li>
+      <li>
+        Dentro del método, crea un nuevo <code>StreamObserver&lt;Solicitud&gt;</code> que implemente:
+        <ul>
+          <li><strong>onNext:</strong> se invoca para cada mensaje que el cliente envía; aquí puedes procesar y responder de inmediato.</li>
+          <li><strong>onError:</strong> gestiona cualquier error en la transmisión.</li>
+          <li><strong>onCompleted:</strong> se llama cuando el cliente termina de enviar mensajes. Puedes realizar un último procesamiento o envío final antes de cerrar la comunicación.</li>
+        </ul>
+      </li>
+    </ol>
+    <p>A continuación:</p>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre class="line-numbers language-java"><code>@Override
+public StreamObserver&lt;Solicitud&gt; charlar(StreamObserver&lt;Respuesta&gt; responseObserver) {
+    // Este método permite la comunicación bidireccional:
+    // por cada mensaje recibido, se envía una respuesta inmediata.
+    return new StreamObserver&lt;Solicitud&gt;() {
+        @Override
+        public void onNext(Solicitud sol) {
+            // Extraer el nombre del mensaje recibido.
+            String nombre = sol.getNombre();
+            v.addText("[Servidor] Recibido mensaje en charlar: " + nombre);
+            // Crear una respuesta inmediata para cada mensaje.
+            String respMsg = "Hola, " + nombre + " (Bidi). Mensaje recibido.";
+            Respuesta r = Respuesta.newBuilder().setMensaje(respMsg).build();
+            // Enviar la respuesta inmediatamente.
+            responseObserver.onNext(r);
+        }
+        @Override
+        public void onError(Throwable t) {
+            System.err.println("[Servidor] Error en charlar: " + t.getMessage());
+            responseObserver.onError(t);
+        }
+        @Override
+        public void onCompleted() {
+            v.addText("[Servidor] Cliente cerró charlar.");
+            responseObserver.onCompleted();
+        }
+    };
+}
+</code></pre>
+    </div>
+    <p>
+      Gracias a este método, el servidor puede responder a cada mensaje del cliente de forma independiente. Una vez que el cliente indica que no enviará más datos, se llama a <code>onCompleted()</code>, permitiendo al servidor finalizar el flujo.
+    </p>
+
+    <!-- Configuración del cliente para Bidirectional Streaming -->
+    <h3>6.3. Configurar la Aplicación del Cliente (MyClient.java)</h3>
+    <p>
+      A continuación se describen los pasos para permitir que el cliente intercambie múltiples mensajes con el servidor de forma simultánea:
+    </p>
+    <ol>
+      <li>
+        Abre la clase <code>src/main/java/client/MyClient.java</code>.
+      </li>
+      <li>
+        La comunicación bidireccional (bidirectional streaming) requiere un stub asíncrono, por lo que, asegúrate de que en la clase <code>MyClient</code> exista el atributo <code>asyncStub</code> y se inicialice junto al <code>blockingStub</code> (lo hicimos antes).
+      </li>
+      <li>
+        En el <code>main</code>, llama al método <code>ejecutarChat</code>:
+
+            <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+        <pre class="line-numbers language-java"><code>// Enviar la solicitud de bienvenida.
+client.ejecutarChat("Luis", "Carlos", "Sofía");</code></pre></div>
+      </li>                  
+      <li>
+        Agrega el método <code>ejecutarChat</code> que:
+        <ul>
+          <li>Defina un <code>StreamObserver&lt;Respuesta&gt;</code> para manejar las respuestas del servidor.</li>
+          <li>Use <code>asyncStub.charlar(responseObserver)</code> para obtener el <code>StreamObserver&lt;Solicitud&gt;</code> y enviar múltiples mensajes.</li>
+        </ul>
+      </li>
+      <li>
+        Envía y recibe mensajes: cada mensaje se envía con <code>onNext()</code> en un bucle u otro mecanismo, y el servidor puede responder de inmediato sin bloquear la ejecución.
+      </li>
+      <li>
+        Cierra la comunicación: llama a <code>onCompleted()</code> para indicar que no se enviarán más mensajes. La comunicación terminará cuando el servidor también invoque <code>onCompleted()</code>.
+      </li>
+    </ol>
+    <p>A continuación:</p>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre class="line-numbers language-java"><code>public void ejecutarChat(String... mensajes) throws InterruptedException {
+    v.addText("\n--- Bidirectional Streaming: charlar ---");
+    // Se utiliza un CountDownLatch para esperar a que se completen las respuestas.
+    final java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
+
+    // Definir un StreamObserver para recibir las respuestas del servidor.
+    StreamObserver&lt;Respuesta&gt; responseObserver = new StreamObserver&lt;Respuesta&gt;() {
+        @Override
+        public void onNext(Respuesta r) {
+            v.addText("[Cliente] <- " + r.getMensaje());
+        }
+        @Override
+        public void onError(Throwable t) {
+            System.err.println("[Cliente] Error en charlar: " + t.getMessage());
+            latch.countDown();
+        }
+        @Override
+        public void onCompleted() {
+            v.addText("[Cliente] Servidor cerró charlar.");
+            latch.countDown();
+        }
+    };
+
+    // Usar asyncStub para establecer el canal bidireccional.
+    StreamObserver&lt;Solicitud&gt; requestObserver = asyncStub.charlar(responseObserver);
+
+    // Enviar mensajes de forma asíncrona en un hilo separado.
+    Thread sender = new Thread(() -> {
+        try {
+            for (String msg : mensajes) {
+                v.addText("[Cliente] -> " + msg);
+                Solicitud req = Solicitud.newBuilder().setNombre(msg).build();
+                requestObserver.onNext(req);
+                // Simular un retardo para observar mejor el intercambio.
+                Thread.sleep(200);
+            }
+            // Indicar al servidor que no se enviarán más mensajes.
+            requestObserver.onCompleted();
+        } catch (InterruptedException e) {
+            requestObserver.onError(e);
+            Thread.currentThread().interrupt();
+        }
+    });
+    sender.start();
+
+    // Esperar a que finalice la comunicación.
+    try {
+		latch.await();
+	     sender.join();
+	} catch (InterruptedException e) {
+		e.printStackTrace();
+    }    
+    v.addText("--- Fin Bidirectional Streaming ---");
+}
+</code></pre>
+    </div>
+    <p>
+      Con esta configuración, el cliente puede enviar y recibir mensajes en paralelo. Cada mensaje que envía se procesa de forma inmediata en el servidor, que a su vez puede responder sin necesidad de esperar a que el cliente finalice el envío de todos los datos.  A continuación puedes ver una simulación:
+    </p>
+
+<div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 30px auto; font-family: 'Courier New', monospace;">
+  <div style="text-align: center; max-width: 400px;">
+    <p style="margin-bottom: 8px; font-weight: bold;">Vista del Servidor</p>
+    <pre style="text-align: left; background-color: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow-x: auto;">
+Servidor gRPC (Unary) en puerto 50051...
+[Servidor] Petición 'saludar' para: Mundo
+[Servidor] Respuesta 'saludar' enviada.
+[Servidor] Recibido nombre (grupo): Luis
+[Servidor] Recibido nombre (grupo): Carlos
+[Servidor] Recibido nombre (grupo): Sofía
+[Servidor] saludarGrupo completado con 3 nombres.
+[Servidor] 'bienvenida' para: Mundo
+[Servidor] 'bienvenida' completada.
+[Servidor] Recibido mensaje en charlar: Luis
+[Servidor] Recibido mensaje en charlar: Carlos
+[Servidor] Recibido mensaje en charlar: Sofía
+[Servidor] Cliente cerró charlar.
+    </pre>
+  </div>
+  <div style="text-align: center; max-width: 400px;">
+    <p style="margin-bottom: 8px; font-weight: bold;">Vista del Cliente</p>
+    <pre style="text-align: left; background-color: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow-x: auto;">
+--- Ejecutar Saludo (Unary) ---
+ [Cliente] Respuesta: Hola, Mundo! Bienvenido a gRPC (Unary).
+ 
+--- Client Streaming: saludarGrupo ---
+ [Cliente] -> Luis
+ [Cliente] -> Carlos
+ [Cliente] -> Sofía
+ [Cliente] Respuesta final: Saludos a todos: Luis, Carlos, Sofía
+ [Cliente] 'saludarGrupo' completado por el servidor.
+ --- Fin Client Streaming ---
+ 
+--- Server Streaming: bienvenida ---
+ [Cliente] <- Hola Mundo, ¡bienvenido!
+ [Cliente] <- Este es un mensaje de server streaming.
+ [Cliente] <- Recibirás varios mensajes secuencialmente.
+ [Cliente] <- Fin de la bienvenida.
+ [Cliente] 'bienvenida' finalizada.
+ 
+--- Bidirectional Streaming: charlar ---
+ [Cliente] -> Luis
+ [Cliente] <- Hola, Luis (Bidi). Mensaje recibido.
+ [Cliente] -> Carlos
+ [Cliente] <- Hola, Carlos (Bidi). Mensaje recibido.
+ [Cliente] -> Sofía
+ [Cliente] <- Hola, Sofía (Bidi). Mensaje recibido.
+ [Cliente] Servidor cerró charlar.
+ --- Fin Bidirectional Streaming ---
+ [Cliente] Cerrando canal...
+ [Cliente] Canal cerrado.</pre>
+  </div>
+</div> 
+  </section>
+
+  <!-- 7. Despliegue con ZeroTier -->
+  <section id="zerotier">
+    <h2>7. Despliegue con ZeroTier</h2>
+    <p>
+      ZeroTier es una herramienta que permite conectar máquinas remotas a través de una red virtual, evitando la necesidad de configurar reenvío de puertos en el router. En esta sección aprenderás a desplegar tu aplicación gRPC utilizando ZeroTier para conectar el cliente y el servidor mediante una IP virtual.
+    </p>
+
+    <h3>7.1. Instalar ZeroTier</h3>
+    <p>
+      Para comenzar, cada máquina (cliente y servidor) debe tener ZeroTier instalado. Esto se realiza descargando el software desde la página oficial.
+    </p>
+    <ol>
+      <li>
+        Visita la página oficial de ZeroTier en <a href="https://www.zerotier.com/download" target="_blank">https://www.zerotier.com/download</a>.
+      </li>
+      <li>
+        Descarga la versión correspondiente al sistema operativo de tu máquina.
+      </li>
+      <li>
+        Sigue las instrucciones del instalador para completar la instalación.
+      </li>
+    </ol>
+    <p>
+      Esta instalación creará un cliente ZeroTier en cada máquina, permitiéndote unirte a redes virtuales.
+    </p>
+
+    <h3>7.2. Configurar la Red Virtual en ZeroTier</h3>
+    <p>
+      Una vez instalado ZeroTier, deberás configurar la red virtual desde el panel de control en línea.
+    </p>
+    <ol>
+      <li>
+        Accede a <a href="https://my.zerotier.com" target="_blank">my.zerotier.com</a> e inicia sesión con tu cuenta.
+      </li>
+      <li>
+        Crea una nueva red o utiliza una existente. Por ejemplo, en la asignatura tenemos las siguientes:
+      </li>
+    </ol>
+    <table style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 14px; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); margin: 20px auto;">
+      <thead>
+        <tr style="background-color: #f4f6f8; text-align: left;">
+          <th style="padding: 12px 15px; border: 1px solid #ddd;">Nombre</th>
+          <th style="padding: 12px 15px; border: 1px solid #ddd;">Network ID</th>
+          <th style="padding: 12px 15px; border: 1px solid #ddd;">Servidor (IP)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background-color: #ffffff;">
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">PCD_2024_L1</td>
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">363c67c55ab5d410</td>
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">172.22.244.25</td>
+        </tr>
+        <tr style="background-color: #f9fafb;">
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">PCD_2024_L2</td>
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">9e1948db63922887</td>
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">172.23.244.25</td>
+        </tr>
+        <tr style="background-color: #ffffff;">
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">PCD_2024_L3</td>
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">856127940c31638e</td>
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">172.24.244.25</td>
+        </tr>
+        <tr style="background-color: #f9fafb;">
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">PCD_2024_L4</td>
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">ebe7fbd4451e16b3</td>
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">172.25.244.25</td>
+        </tr>
+        <tr style="background-color: #ffffff;">
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">PCD_2024_L5</td>
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">48d6023c4670ede1</td>
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">172.26.244.25</td>
+        </tr>
+        <tr style="background-color: #f9fafb;">
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">PCD_2024_L6</td>
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">272f5eae16acca95</td>
+          <td style="padding: 10px 15px; border: 1px solid #ddd;">172.27.244.25</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <ol start="3">
+      <li>
+        Únete a la red deseada ingresando el Network ID (por ejemplo, <code>9e1948db63922887</code> para <strong>PCD_2024_L2</strong>).
+      </li>
+      <li>
+        Autoriza el dispositivo desde el panel de ZeroTier.
+      </li>
+    </ol>
+    <p>
+      De este modo, las máquinas se conectarán a la misma red virtual y recibirán una IP asignada por ZeroTier.
+    </p>     
+
+    <h3>7.3. Modificar la Conexión del Cliente</h3>
+    <p>
+      Para utilizar ZeroTier, el cliente debe conectarse al servidor usando la IP virtual asignada. En la clase <code>MyClient</code>, se debe modificar la línea de conexión.
+    </p>
+    <p>A continuación:</p>
+    <ol>
+      <li>
+        Abre la clase <code>MyClient.java</code> en Eclipse.
+      </li>
+      <li>
+        Ubica la línea que crea el cliente:
+        <pre class="line-numbers language-java"><code>MyClient client = new MyClient("localhost", 50051);</code></pre>
+      </li>
+      <li>
+        Sustitúyela por la siguiente, utilizando la IP asignada por ZeroTier (por ejemplo, <code>172.23.244.25</code> para <strong>PCD_2024_L2</strong>):
+        <pre class="line-numbers language-java"><code>MyClient client = new MyClient("172.23.244.25", 50051);</code></pre>
+      </li>
+    </ol>
+    <p>
+      Con esta modificación, el cliente se conectará al servidor a través de la red virtual de ZeroTier.
+    </p>
+
+    <h3>7.4. Ejecución y Verificación</h3>
+    <p>
+      Una vez realizados los ajustes:
+    </p>
+    <ol>
+      <li>
+        En la máquina que actuará como servidor, ejecuta <code>MyServer.java</code> desde Eclipse.
+      </li>
+      <li>
+        En la máquina cliente, ejecuta <code>MyClient.java</code>.
+      </li>
+      <li>
+        Verifica que el cliente se conecte al servidor utilizando la IP virtual y que la comunicación se establezca correctamente.
+      </li>
+    </ol>
+    <p>
+      Esta configuración te permitirá desplegar y probar tu aplicación gRPC en un entorno de red virtual sin complicaciones adicionales de configuración de red física.
+    </p>
+  </section>
+
+</div>
+<script>
+  function copyCode(btn) {
+    // Encuentra el elemento <pre> que sigue al botón
+    const codeBlock = btn.nextElementSibling;
+    if (!codeBlock) return;
+    const codeText = codeBlock.innerText;
+   
+    // Usa la API del portapapeles para copiar el texto
+    navigator.clipboard.writeText(codeText).then(() => {
+      // Cambiar temporalmente el texto del botón para confirmar la acción
+      const originalText = btn.innerText;
+      btn.innerText = "¡Copiado!";
+      setTimeout(() => {
+        btn.innerText = originalText;
+      }, 2000);
+    }).catch(err => {
+      console.error("Error al copiar el código:", err);
+      alert("Error al copiar el código. Verifica que tu navegador soporte la API de Clipboard.");
+    });
+  }
+</script>
+</body>
+</html>
