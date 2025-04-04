@@ -1299,7 +1299,7 @@ client.ejecutarChat("Luis", "Carlos", "Sofía");</code></pre></div>
         requestObserver.onCompleted();
     } catch (InterruptedException e) {
         requestObserver.onError(e);
-        Thread.currentThread().interrupt();
+	System.err.println("[Cliente] Error en charlar");
     }        
         
     // Esperar a que finalice la comunicación.
