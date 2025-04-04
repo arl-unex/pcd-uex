@@ -1286,31 +1286,27 @@ client.ejecutarChat("Luis", "Carlos", "Sofía");</code></pre></div>
     // Usar asyncStub para establecer el canal bidireccional.
     StreamObserver&lt;Solicitud&gt; requestObserver = asyncStub.charlar(responseObserver);
 
-    // Enviar mensajes de forma asíncrona en un hilo separado.
-    Thread sender = new Thread(() -> {
-        try {
-            for (String msg : mensajes) {
-                v.addText("[Cliente] -> " + msg);
-                Solicitud req = Solicitud.newBuilder().setNombre(msg).build();
-                requestObserver.onNext(req);
-                // Simular un retardo para observar mejor el intercambio.
-                Thread.sleep(200);
-            }
-            // Indicar al servidor que no se enviarán más mensajes.
-            requestObserver.onCompleted();
-        } catch (InterruptedException e) {
-            requestObserver.onError(e);
-            Thread.currentThread().interrupt();
+    // Enviar mensajes de forma asíncrona
+    try {
+        for (String msg : mensajes) {
+            v.addText("[Cliente] -> " + msg);
+            Solicitud req = Solicitud.newBuilder().setNombre(msg).build();
+            requestObserver.onNext(req);
+            // Simular un retardo para observar mejor el intercambio.
+            Thread.sleep(200);
         }
-    });
-    sender.start();
-
+        // Indicar al servidor que no se enviarán más mensajes.
+        requestObserver.onCompleted();
+    } catch (InterruptedException e) {
+        requestObserver.onError(e);
+        Thread.currentThread().interrupt();
+    }        
+        
     // Esperar a que finalice la comunicación.
     try {
-		latch.await();
-	     sender.join();
-	} catch (InterruptedException e) {
-		e.printStackTrace();
+    	latch.await();
+    } catch (InterruptedException e) {
+    	e.printStackTrace();
     }    
     v.addText("--- Fin Bidirectional Streaming ---");
 }
